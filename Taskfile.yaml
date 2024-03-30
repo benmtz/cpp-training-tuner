@@ -14,6 +14,10 @@ tasks:
     cmds:
       - cmake -G Ninja ../
 
+  test:
+    cmds:
+      - ctest --preset default
+
   build:
     cmds:
       - task: cmake-generate

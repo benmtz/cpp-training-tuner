@@ -11,7 +11,8 @@
       "name": "common",
       "hidden": true,
       "cacheVariables": {
-        "APP_JUCE_VERSION": "master"
+        "APP_JUCE_VERSION": "master",
+        "APP_CATCH2_VERSION": "v3.5.3"
       }
     },
     {
@@ -21,13 +22,6 @@
       "inherits": [ "common" ],
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/default",
-      "cacheVariables": {
-        "FIRST_CACHE_VARIABLE": {
-          "type": "BOOL",
-          "value": "OFF"
-        },
-        "SECOND_CACHE_VARIABLE": "ON"
-      },
       "environment": {
         "MY_ENVIRONMENT_VARIABLE": "Test",
         "PATH": "$env{HOME}/ninja/bin:$penv{PATH}"

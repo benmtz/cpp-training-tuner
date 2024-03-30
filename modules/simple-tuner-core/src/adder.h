@@ -1,16 +1,6 @@
-//
-// Created by Ben MERTZ on 30/03/2024.
-//
-
 #ifndef CPP_TRAINING_JUCE_TUNER_ADDER_H
 #define CPP_TRAINING_JUCE_TUNER_ADDER_H
 
-
-
-class adder {
-
-};
-
-
+unsigned int Factorial(unsigned int number);
 
 #endif //CPP_TRAINING_JUCE_TUNER_ADDER_H
