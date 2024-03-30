@@ -1,0 +1,24 @@
+name: CI Simple Tuner
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Task
+        uses: arduino/setup-task@v1
+        with: { version: 3.x }
+
+      - run: python -m pip install requirements.lock.txt
+
+      - name: Build
+        run: task build
+
