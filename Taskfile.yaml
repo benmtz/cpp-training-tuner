@@ -1,0 +1,43 @@
+version: '3'
+
+tasks:
+  setup-build-tools:
+    cmds:
+      - python3 -m pip install --upgrade -r requirements.txt
+      - python3 -m pip freeze > requirements.lock.txt
+
+  cmake-ninja-generate:
+    dir: ninja-build
+    sources:
+      - "CMakeLists.txt"
+      - "third_party/**"
+    cmds:
+      - cmake -G Ninja ../
+
+  build:
+    cmds:
+      - task: cmake-generate
+        vars: { PresetName: default }
+      - task: cmake-build
+        vars: { PresetName: default }
+
+  cmake-generate:
+    internal: true
+    requires:
+      vars: [ PresetName ]
+    sources:
+      - CMakeLists.txt
+      - "**/CMakeLists.txt"
+    cmds:
+      - cmake --preset {{ .PresetName }}
+
+  cmake-build:
+    internal: true
+    requires:
+      vars: [ PresetName ]
+    sources:
+      - modules/**
+      - CMakeLists.txt
+      - "**/CMakeLists.txt"
+    cmds:
+      - cmake --build {{ .PresetName }} -j8 --preset {{ .PresetName }}
