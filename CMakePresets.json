@@ -11,14 +11,19 @@
       "hidden": true,
       "cacheVariables": {
         "APP_JUCE_VERSION": "master",
-        "APP_CATCH2_VERSION": "v3.5.3"
+        "APP_CATCH2_VERSION": "v3.5.3",
+        "CMAKE_CXX_STANDARD": "17",
+        "CMAKE_CXX_FLAGS": "-fcoverage-mapping -fprofile-instr-generate --coverage",
+        "CMAKE_C_FLAGS": "-fcoverage-mapping -fprofile-instr-generate"
       }
     },
     {
       "name": "default",
       "displayName": "Default Config",
       "description": "Default build using Ninja generator",
-      "inherits": [ "common" ],
+      "inherits": [
+        "common"
+      ],
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/default",
       "environment": {
@@ -42,8 +47,13 @@
     {
       "name": "default",
       "configurePreset": "default",
-      "output": {"outputOnFailure": true},
-      "execution": {"noTestsAction": "error", "stopOnFailure": true}
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
     }
   ],
   "packagePresets": [
