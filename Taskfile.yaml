@@ -16,6 +16,7 @@ tasks:
       - python3 -m pip install --upgrade -r requirements.txt
       - python3 -m pip freeze > requirements.lock.txt
 
+
   cmake-ninja-generate:
     dir: ninja-build
     sources:
@@ -24,18 +25,22 @@ tasks:
     cmds:
       - cmake -G Ninja ../
 
+
   format:
     cmds:
       - clang-format -i modules/**/*.cpp
+
 
   format-changed:
     cmds:
       - git diff --name-only --diff-filter AM | grep ".cpp" | tr "\n" " " | xargs clang-format -i
 
+
   test:
     cmds:
       - ctest --preset default
       - ls -alhR build/default
+
 
   build:
     cmds:
@@ -44,11 +49,13 @@ tasks:
       - task: cmake-build
         vars: { PresetName: default }
 
+
   clean-build:
     cmds:
       - rm -rf build
       - task: build
         vars: { PresetName: default }
+
 
   cmake-generate:
     internal: true
@@ -61,6 +68,7 @@ tasks:
       - "build/{{ .PresetName }}"
     cmds:
       - cmake --preset {{ .PresetName }}
+
 
   cmake-build:
     internal: true
