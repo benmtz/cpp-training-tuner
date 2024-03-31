@@ -1,4 +1,5 @@
 cmake
+ninja
 
 # Fixed to 5.0 based on this
 # https://github.com/sonarsource-cfamily-examples/linux-cmake-gcovr-gh-actions-sc/blob/main/.github/workflows/build.yml#L25
