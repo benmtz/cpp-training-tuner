@@ -19,7 +19,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get install libxrandr-dev libxinerama-dev libxcursor-dev
+          sudo apt-get install libxrandr-dev libxinerama-dev libxcursor-dev clang
           python -m pip install -r requirements.lock.txt
 
       - name: Install sonar-scanner
