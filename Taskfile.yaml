@@ -14,6 +14,14 @@ tasks:
     cmds:
       - cmake -G Ninja ../
 
+  format:
+    cmds:
+      - clang-format -i modules/**/*.cpp
+
+  format-changed:
+    cmds:
+      - git diff --name-only --diff-filter AM | grep ".cpp" | tr "\n" " " | xargs clang-format -i
+
   test:
     cmds:
       - ctest --preset default
@@ -25,22 +33,30 @@ tasks:
       - task: cmake-build
         vars: { PresetName: default }
 
+  clean-build:
+    cmds:
+      - rm -rf build
+      - task: build
+        vars: { PresetName: default }
+
   cmake-generate:
     internal: true
     requires:
-      vars: [ PresetName ]
+      vars: [PresetName]
     sources:
       - CMakeLists.txt
       - "**/CMakeLists.txt"
+    generates:
+      - "build/{{ .PresetName }}"
     cmds:
       - cmake --preset {{ .PresetName }}
 
   cmake-build:
     internal: true
     requires:
-      vars: [ PresetName ]
+      vars: [PresetName]
     sources:
-      - modules/**
+      - modules/**/*
       - CMakeLists.txt
       - "**/CMakeLists.txt"
     cmds:
