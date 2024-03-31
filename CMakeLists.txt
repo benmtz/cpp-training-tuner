@@ -10,5 +10,6 @@ add_subdirectory(third_party/juce)
 add_subdirectory(third_party/catch2)
 
 add_subdirectory(modules/simple-tuner-core)
+add_subdirectory(modules/simple-tuner-core-2)
 add_subdirectory(modules/simple-tuner-gui)
 
