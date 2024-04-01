@@ -1,29 +1,10 @@
 version: '3'
 
 tasks:
-
-  sonar-install:
-    vars:
-      sonar_version: 5.0.1.3006
-    cmds:
-      - >
-        curl
-        "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-{{ .sonar_version }}.zip"
-        
-
   setup-build-tools:
     cmds:
       - python3 -m pip install --upgrade -r requirements.txt
       - python3 -m pip freeze > requirements.lock.txt
-
-
-  cmake-ninja-generate:
-    dir: ninja-build
-    sources:
-      - "CMakeLists.txt"
-      - "third_party/**"
-    cmds:
-      - cmake -G Ninja ../
 
 
   format:
@@ -36,12 +17,6 @@ tasks:
       - git diff --name-only --diff-filter AM | grep ".cpp" | tr "\n" " " | xargs clang-format -i
 
 
-  test:
-    cmds:
-      - ctest --preset default
-      - ls -alhR build/default
-
-
   build:
     cmds:
       - task: cmake-generate
@@ -49,6 +24,16 @@ tasks:
       - task: cmake-build
         vars: { PresetName: default }
 
+  test:
+    cmds:
+      - task: ctest
+        vars: { PresetName: default }
+
+  report-and-analysis:
+    cmds:
+      - task: generate-llvm-cov-report
+      - task: sonar-upload
+        vars: { BuildOutput: "build/default" }
 
   clean-build:
     cmds:
@@ -67,7 +52,24 @@ tasks:
     generates:
       - "build/{{ .PresetName }}"
     cmds:
-      - cmake --preset {{ .PresetName }}
+      - mkdir -p build/{{ .PresetName }}_graph
+      - cmake --preset {{ .PresetName }} {{ .CMAKE_OPTIONS }} --graphviz=build/{{ .PresetName }}_graph/graph.dot
+      - cmd: dot build/{{ .PresetName }}/graph_graph.dot -Tpng -o build/{{ .PresetName }}_graph/graph.png
+        ignore_error: true
+
+
+  ci:
+    cmds:
+      - task: cmake-generate
+        vars: { PresetName: default }
+      - task: cmake-build
+        vars:
+          PresetName: default
+      - task: ctest
+        vars: { PresetName: default }
+      - task: generate-llvm-cov-report
+      - task: sonar-upload
+        vars: { BuildOutput: "build/default" }
 
 
   cmake-build:
@@ -75,8 +77,44 @@ tasks:
     requires:
       vars: [PresetName]
     sources:
+      - build/{{ .PresetName }}/**/*
       - modules/**/*
       - CMakeLists.txt
       - "**/CMakeLists.txt"
     cmds:
-      - cmake --build -j8 --preset {{ .PresetName }}
+      - "cmake --build -j8 --preset {{ .PresetName }} {{ .CMAKE_OPTIONS }}"
+
+
+  ctest:
+    requires:
+      vars: [PresetName]
+    cmds:
+      - ctest --preset {{ .PresetName }}
+
+
+  generate-llvm-cov-report:
+    vars:
+      ReportType: text
+    dir: build/default
+    cmds:
+      - |
+        prof_files=$(find . -name "*.profraw" | tr "\n" " ")
+        test_binaries=$(find . -type f -name "*_tests" | xargs -I {} echo -n "-object {} " | sed 's/-object //' )
+        
+        llvm-profdata merge -sparse $prof_files -o merged.profdata
+
+        llvm-cov show --show-branches=count \
+                    -instr-profile=merged.profdata \
+                    $test_binaries \
+                    {{ if eq .ReportType "html" }} -format=html -output-dir=coverage {{ end }}\
+                    -ignore-filename-regex='.*src/catch2.*' \
+                    -ignore-filename-regex='.*_deps.*' {{ if eq .ReportType "text" }} | tee coverage.txt {{ end }}
+
+
+  sonar-upload:
+    cmds:
+      - |
+        sonar-scanner \
+             --define sonar.cfamily.llvm-cov.reportPath="{{ .BuildOutput }}/coverage.txt" \
+             --define sonar.cfamily.compile-commands="{{ .BuildOutput }}/compile_commands.json" \
+             --define sonar.host.url=https://sonarcloud.io

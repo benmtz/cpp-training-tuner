@@ -19,15 +19,26 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get install libxrandr-dev libxinerama-dev libxcursor-dev clang
+          sudo apt-get install libxrandr-dev libxinerama-dev libxcursor-dev clang llvm
           python -m pip install -r requirements.lock.txt
 
       - name: Install sonar-scanner
         uses: SonarSource/sonarcloud-github-c-cpp@v2
 
       - name: Build
-        run: task build
+        run: task ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          CXX: /usr/bin/clang++
+          CC: /usr/bin/clang
 
       - name: Test
         run: task test
+
+      - name: Report & Analysis
+        run: task report-and-analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
