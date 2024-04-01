@@ -5,3 +5,5 @@ cmake-build-debug
 .idea
 .vscode
 Testing
+*.profdata
+.scannerwork

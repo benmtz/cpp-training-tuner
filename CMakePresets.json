@@ -12,7 +12,8 @@
       "cacheVariables": {
         "APP_JUCE_VERSION": "master",
         "APP_CATCH2_VERSION": "v3.5.3",
-        "CMAKE_CXX_STANDARD": "17"
+        "CMAKE_CXX_STANDARD": "17",
+        "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {
@@ -38,7 +39,11 @@
   "buildPresets": [
     {
       "name": "default",
-      "configurePreset": "default"
+      "configurePreset": "default",
+      "environment": {
+        "CXXFLAGS": "--coverage",
+        "CFLAGS": "--coverage"
+      }
     }
   ],
   "testPresets": [
